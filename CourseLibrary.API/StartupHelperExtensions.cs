@@ -25,12 +25,23 @@ internal static class StartupHelperExtensions
         return builder.Build();
     }
 
-    // Configure the request/response pipelien
+    // Configure the request/response pipeline
     public static WebApplication ConfigurePipeline(this WebApplication app)
     { 
         if (app.Environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+        }
+        else
+        {
+            app.UseExceptionHandler(builder =>//application exception fırlattığında base message dönüyoruz
+            {
+                builder.Run(async context =>
+                {
+                    context.Response.StatusCode = 500;
+                    await context.Response.WriteAsync("An unexpected fault happened. Try again later");  
+                });
+            } );
         }
  
         app.UseAuthorization();
