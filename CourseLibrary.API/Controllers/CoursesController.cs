@@ -16,9 +16,9 @@ public class CoursesController : ControllerBase
         IMapper mapper)
     {
         _courseLibraryRepository = courseLibraryRepository ??
-            throw new ArgumentNullException(nameof(courseLibraryRepository));
+                                   throw new ArgumentNullException(nameof(courseLibraryRepository));
         _mapper = mapper ??
-            throw new ArgumentNullException(nameof(mapper));
+                  throw new ArgumentNullException(nameof(mapper));
     }
 
     [HttpGet]
@@ -33,7 +33,7 @@ public class CoursesController : ControllerBase
         return Ok(_mapper.Map<IEnumerable<CourseDto>>(coursesForAuthorFromRepo));
     }
 
-    [HttpGet("{courseId}")]
+    [HttpGet("{courseId}", Name = "GetCourseForAuthor")]
     public async Task<ActionResult<CourseDto>> GetCourseForAuthor(Guid authorId, Guid courseId)
     {
         if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
@@ -47,13 +47,14 @@ public class CoursesController : ControllerBase
         {
             return NotFound();
         }
+
         return Ok(_mapper.Map<CourseDto>(courseForAuthorFromRepo));
     }
 
 
     [HttpPost]
     public async Task<ActionResult<CourseDto>> CreateCourseForAuthor(
-            Guid authorId, CourseForCreationDto course)
+        Guid authorId, CourseForCreationDto course)
     {
         if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
         {
@@ -65,14 +66,18 @@ public class CoursesController : ControllerBase
         await _courseLibraryRepository.SaveAsync();
 
         var courseToReturn = _mapper.Map<CourseDto>(courseEntity);
-        return Ok(courseToReturn);
+        return CreatedAtRoute("GetCourseForAuthor", new
+        {
+            authorId,
+            courseId = courseToReturn.Id
+        }, courseToReturn) ;
     }
 
 
     [HttpPut("{courseId}")]
     public async Task<IActionResult> UpdateCourseForAuthor(Guid authorId,
-      Guid courseId,
-      CourseDto course)
+        Guid courseId,
+        CourseDto course)
     {
         if (!await _courseLibraryRepository.AuthorExistsAsync(authorId))
         {
@@ -114,5 +119,4 @@ public class CoursesController : ControllerBase
 
         return NoContent();
     }
-
 }
