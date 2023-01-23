@@ -1,5 +1,6 @@
 ﻿using CourseLibrary.API.DbContexts;
 using CourseLibrary.API.Services;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseLibrary.API;
@@ -9,7 +10,11 @@ internal static class StartupHelperExtensions
     // Add services to the container
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
-        builder.Services.AddControllers();
+        builder.Services.AddControllers(configure =>
+        {
+            configure.ReturnHttpNotAcceptable = true;//sadece desteklenen formatda dönüş yapar aksi halde 406 Not Acceptable döner
+            //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); xml formatter
+        }).AddXmlDataContractSerializerFormatters();// xml formatter
 
         builder.Services.AddScoped<ICourseLibraryRepository, 
             CourseLibraryRepository>();
