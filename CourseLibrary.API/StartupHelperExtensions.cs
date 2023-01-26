@@ -2,6 +2,7 @@
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Serialization;
 
 namespace CourseLibrary.API;
 
@@ -11,51 +12,49 @@ internal static class StartupHelperExtensions
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddControllers(configure =>
-        {
-            configure.ReturnHttpNotAcceptable = true;//sadece desteklenen formatda dönüş yapar aksi halde 406 Not Acceptable döner
-            //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); xml formatter
-        }).AddXmlDataContractSerializerFormatters();// xml formatter
-
-        builder.Services.AddScoped<ICourseLibraryRepository, 
+            {
+                configure.ReturnHttpNotAcceptable = true; //sadece desteklenen formatda dönüş yapar aksi halde 406 Not Acceptable döner
+                //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); xml formatter
+            })
+            .AddNewtonsoftJson(options => { options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); })
+            .AddXmlDataContractSerializerFormatters(); // xml formatter;
+            
+        builder.Services.AddScoped<ICourseLibraryRepository,
             CourseLibraryRepository>();
 
-        builder.Services.AddDbContext<CourseLibraryContext>(options =>
-        {
-            options.UseSqlite(@"Data Source=library.db");
-        });
+        builder.Services.AddDbContext<CourseLibraryContext>(options => { options.UseSqlite(@"Data Source=library.db"); });
 
         builder.Services.AddAutoMapper(
             AppDomain.CurrentDomain.GetAssemblies());
-             
-          
-        
+
+
         return builder.Build();
     }
-    
+
     // Configure the request/response pipeline
     public static WebApplication ConfigurePipeline(this WebApplication app)
-    { 
+    {
         if (app.Environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
         }
         else
         {
-            app.UseExceptionHandler(builder =>//application exception fırlattığında base message dönüyoruz
+            app.UseExceptionHandler(builder => //application exception fırlattığında base message dönüyoruz
             {
                 builder.Run(async context =>
                 {
                     context.Response.StatusCode = 500;
-                    await context.Response.WriteAsync("An unexpected fault happened. Try again later");  
+                    await context.Response.WriteAsync("An unexpected fault happened. Try again later");
                 });
-            } );
+            });
         }
- 
+
         app.UseAuthorization();
 
-        app.MapControllers(); 
-         
-        return app; 
+        app.MapControllers();
+
+        return app;
     }
 
     public static async Task ResetDatabaseAsync(this WebApplication app)
@@ -76,6 +75,6 @@ internal static class StartupHelperExtensions
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger>();
                 logger.LogError(ex, "An error occurred while migrating the database.");
             }
-        } 
+        }
     }
 }
