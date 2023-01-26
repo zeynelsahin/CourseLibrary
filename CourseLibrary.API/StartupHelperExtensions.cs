@@ -26,10 +26,12 @@ internal static class StartupHelperExtensions
 
         builder.Services.AddAutoMapper(
             AppDomain.CurrentDomain.GetAssemblies());
-
+             
+          
+        
         return builder.Build();
     }
-
+    
     // Configure the request/response pipeline
     public static WebApplication ConfigurePipeline(this WebApplication app)
     { 
