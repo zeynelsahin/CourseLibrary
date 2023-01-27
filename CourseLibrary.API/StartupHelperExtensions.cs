@@ -1,6 +1,8 @@
 ﻿using CourseLibrary.API.DbContexts;
 using CourseLibrary.API.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
 
@@ -14,11 +16,28 @@ internal static class StartupHelperExtensions
         builder.Services.AddControllers(configure =>
             {
                 configure.ReturnHttpNotAcceptable = true; //sadece desteklenen formatda dönüş yapar aksi halde 406 Not Acceptable döner
-                //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); xml formatter
+                //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); xml formatterf
             })
             .AddNewtonsoftJson(options => { options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); })
-            .AddXmlDataContractSerializerFormatters(); // xml formatter;
-            
+            .AddXmlDataContractSerializerFormatters() // xml formatter;
+            .ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    var problemDetailsFactory = context.HttpContext.RequestServices.GetRequiredService<ProblemDetailsFactory>();
+                    var validationProblemDetails = problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, context.ModelState);
+
+                    validationProblemDetails.Detail = "See the errors field for details.";
+                    validationProblemDetails.Instance = context.HttpContext.Request.Path;
+                    validationProblemDetails.Type = "https://courselibrary/modelvalidationproblem";
+                    validationProblemDetails.Status = StatusCodes.Status422UnprocessableEntity;
+                    validationProblemDetails.Title = "One or more validation errors occured.";
+                    return new UnprocessableEntityObjectResult(validationProblemDetails)
+                    {
+                        ContentTypes = { "application/problem+json" },
+                    };
+                };
+            });
         builder.Services.AddScoped<ICourseLibraryRepository,
             CourseLibraryRepository>();
 
@@ -27,7 +46,7 @@ internal static class StartupHelperExtensions
         builder.Services.AddAutoMapper(
             AppDomain.CurrentDomain.GetAssemblies());
 
-
+        //Problem details Content-Type: application/problem+json
         return builder.Build();
     }
 
