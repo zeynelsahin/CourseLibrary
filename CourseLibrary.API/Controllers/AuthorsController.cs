@@ -1,12 +1,12 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using CourseLibrary.API.Models;
+using CourseLibrary.API.ResourceParameters;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CourseLibrary.API.Controllers;
 
-[ApiController] 
+[ApiController]
 [Route("api/authors")]
 public class AuthorsController : ControllerBase
 {
@@ -18,17 +18,17 @@ public class AuthorsController : ControllerBase
         IMapper mapper)
     {
         _courseLibraryRepository = courseLibraryRepository ??
-            throw new ArgumentNullException(nameof(courseLibraryRepository));
+                                   throw new ArgumentNullException(nameof(courseLibraryRepository));
         _mapper = mapper ??
-            throw new ArgumentNullException(nameof(mapper));
+                  throw new ArgumentNullException(nameof(mapper));
     }
 
-    [HttpGet] 
-    public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors()
-    { 
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors([FromQuery] AuthorResourceParameters resourceParameters)
+    {
         // get authors from repo
         var authorsFromRepo = await _courseLibraryRepository
-            .GetAuthorsAsync(); 
+            .GetAuthorsAsync(resourceParameters);
 
         // return them
         return Ok(_mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo));
@@ -67,7 +67,7 @@ public class AuthorsController : ControllerBase
     [HttpOptions]
     public IActionResult GetAuthorsOptions()
     {
-         Response.Headers.Add("Allow","GET,HEAD,POST,OPTIONS");
-         return Ok();
+        Response.Headers.Add("Allow", "GET,HEAD,POST,OPTIONS");
+        return Ok();
     }
 }
