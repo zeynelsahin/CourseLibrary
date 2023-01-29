@@ -14,20 +14,26 @@ public class AuthorsController : ControllerBase
 {
     private readonly ICourseLibraryRepository _courseLibraryRepository;
     private readonly IMapper _mapper;
-
+    private readonly IPropertyMappingService _propertyMappingService;
     public AuthorsController(
         ICourseLibraryRepository courseLibraryRepository,
-        IMapper mapper)
+        IMapper mapper, IPropertyMappingService propertyMappingService)
     {
         _courseLibraryRepository = courseLibraryRepository ??
                                    throw new ArgumentNullException(nameof(courseLibraryRepository));
         _mapper = mapper ??
                   throw new ArgumentNullException(nameof(mapper));
+        _propertyMappingService = propertyMappingService?? throw new ArgumentNullException(nameof(propertyMappingService));
     }
 
-    [HttpGet(Name = "GetAuthor")]
+    [HttpGet(Name = "GetAuthors")]
     public async Task<ActionResult<IEnumerable<AuthorDto>>> GetAuthors([FromQuery] AuthorResourceParameters resourceParameters)
     {
+
+        if (!_propertyMappingService.ValidMappingExistsFor<AuthorDto, Entities.Author>(resourceParameters.OrderBy))
+        {
+            return BadRequest();
+        }
         var authorsFromRepo = await _courseLibraryRepository
             .GetAuthorsAsync(resourceParameters);
         var previousPageLink = authorsFromRepo.HasPrevious ? CreateAuthorsResourceUri(resourceParameters, ResourceUriType.PreviousPage) : null;
@@ -53,6 +59,7 @@ public class AuthorsController : ControllerBase
             case ResourceUriType.NextPage:
                 return Url.Link("GetAuthors", new
                 {
+                    orderBy = resourceParameters.OrderBy,
                     pageNumber = resourceParameters.PageNumber + 1,
                     pageSize = resourceParameters.PageSize,
                     mainCategory = resourceParameters.MainCategory,
@@ -62,6 +69,7 @@ public class AuthorsController : ControllerBase
             case ResourceUriType.PreviousPage:
                 return Url.Link("GetAuthors", new
                 {
+                    orderBy = resourceParameters.OrderBy,
                     pageNumber = resourceParameters.PageNumber - 1,
                     pageSize = resourceParameters.PageSize,
                     mainCategory = resourceParameters.MainCategory,
@@ -70,6 +78,7 @@ public class AuthorsController : ControllerBase
             default:
                 return Url.Link("GetAuthors", new
                 {
+                    orderBy = resourceParameters.OrderBy,
                     pageNumber = resourceParameters.PageNumber,
                     pageSize = resourceParameters.PageSize,
                     mainCategory = resourceParameters.MainCategory,

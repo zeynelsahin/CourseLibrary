@@ -1,6 +1,7 @@
 ﻿using CourseLibrary.API.DbContexts;
 using CourseLibrary.API.Entities;
 using CourseLibrary.API.Helpers;
+using CourseLibrary.API.Models;
 using CourseLibrary.API.ResourceParameters;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,10 +9,12 @@ namespace CourseLibrary.API.Services;
 
 public class CourseLibraryRepository : ICourseLibraryRepository
 {
+    private IPropertyMappingService _propertyMappingService;
     private readonly CourseLibraryContext _context;
 
-    public CourseLibraryRepository(CourseLibraryContext context)
+    public CourseLibraryRepository(CourseLibraryContext context,IPropertyMappingService propertyMappingService)
     {
+        _propertyMappingService = propertyMappingService;
         _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
@@ -155,9 +158,12 @@ public class CourseLibraryRepository : ICourseLibraryRepository
             collection = collection.Where(a => a.MainCategory.Contains(resourceParameters.SearchQuery) || a.MainCategory.Contains(resourceParameters.SearchQuery) || a.LastName.Contains(resourceParameters.SearchQuery));
         }
 
-
+        if (!string.IsNullOrWhiteSpace(resourceParameters.OrderBy))
+        {
+            var authorPropertyMappingDictionary = _propertyMappingService.GetPropertyMapping<AuthorDto, Author>();
+            collection = collection.ApplySort(resourceParameters.OrderBy, authorPropertyMappingDictionary);
+        }
         // return await collection.Skip(resourceParameters.PageSize * (resourceParameters.PageNumber - 1)).Take(resourceParameters.PageSize).ToListAsync();
-
         return await PageList<Author>.CreateAsync(collection, resourceParameters.PageNumber, resourceParameters.PageSize);
     }
 
