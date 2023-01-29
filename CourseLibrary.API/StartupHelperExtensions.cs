@@ -16,7 +16,7 @@ internal static class StartupHelperExtensions
         builder.Services.AddControllers(configure =>
             {
                 configure.ReturnHttpNotAcceptable = true; //sadece desteklenen formatda dönüş yapar aksi halde 406 Not Acceptable döner
-                //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); xml formatterf
+                //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); xml formatter
             })
             .AddNewtonsoftJson(options => { options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); })
             .AddXmlDataContractSerializerFormatters() // xml formatter;

@@ -19,15 +19,17 @@ public class AuthorsController : ControllerBase
     private readonly IPropertyMappingService _propertyMappingService;
     private readonly IPropertyCheckerService _propertyCheckerService;
     private readonly ProblemDetailsFactory _problemDetailsFactory;
+
     public AuthorsController(
         ICourseLibraryRepository courseLibraryRepository,
-        IMapper mapper, IPropertyMappingService propertyMappingService)
+        IMapper mapper, IPropertyMappingService propertyMappingService, IPropertyCheckerService propertyCheckerService)
     {
         _courseLibraryRepository = courseLibraryRepository ??
                                    throw new ArgumentNullException(nameof(courseLibraryRepository));
         _mapper = mapper ??
                   throw new ArgumentNullException(nameof(mapper));
         _propertyMappingService = propertyMappingService ?? throw new ArgumentNullException(nameof(propertyMappingService));
+        _propertyCheckerService = propertyCheckerService ?? throw new ArgumentNullException(nameof(propertyCheckerService));
     }
 
     [HttpGet(Name = "GetAuthors")]
@@ -95,13 +97,14 @@ public class AuthorsController : ControllerBase
         };
     }
 
-    [HttpGet("{authorId:guid}", Name = "GetAuthor")]
+    [HttpGet("{authorId}", Name = "GetAuthor")]
     public async Task<IActionResult> GetAuthor(Guid authorId, string? fields)
     {
         if (!_propertyCheckerService.TypeHasProperties<AuthorDto>(fields))
         {
             return BadRequest(_problemDetailsFactory.CreateProblemDetails(HttpContext, statusCode: 400, detail: $"Not all requested data shaping fields exist on the resource: {fields}"));
         }
+
         // get author from repo
         var authorFromRepo = await _courseLibraryRepository.GetAuthorAsync(authorId);
 
@@ -110,8 +113,33 @@ public class AuthorsController : ControllerBase
             return NotFound();
         }
 
-        // return author
-        return Ok(_mapper.Map<AuthorDto>(authorFromRepo).ShepData(fields));
+        var links = CreateLinksForAuthor(authorId, fields);
+        var linkedResourceToReturn = _mapper.Map<AuthorDto>(authorFromRepo).ShepData(fields) as IDictionary<string, object?>;
+
+        linkedResourceToReturn.Add("links", links);
+        return Ok(linkedResourceToReturn);
+    }
+
+    private IEnumerable<LinkDto> CreateLinksForAuthor(Guid authorId, string? fields)
+    {
+        var links = new List<LinkDto>();
+
+        if (string.IsNullOrWhiteSpace(fields))
+        {
+            links.Add(new LinkDto(Url.Link("GetAuthor", new { authorId }), "self", "GET"
+            ));
+        }
+        else
+        {
+            links.Add(new LinkDto(Url.Link("GetAuthor", new { authorId, fields }), "self", "GET"
+            ));
+        }
+
+        links.Add(new LinkDto(Url.Link("GetCoursesForAuthor", new { authorId }), "courses", "GET"
+        ));
+
+
+        return links;
     }
 
     [HttpPost]
@@ -123,10 +151,12 @@ public class AuthorsController : ControllerBase
         await _courseLibraryRepository.SaveAsync();
 
         var authorToReturn = _mapper.Map<AuthorDto>(authorEntity);
-
+        var links = CreateLinksForAuthor(authorToReturn.Id, null);
+        var linkedResourceToReturn = authorToReturn.ShepData(null) as IDictionary<string, object>;
+        linkedResourceToReturn.Add("links", links);
         return CreatedAtRoute("GetAuthor",
-            new { authorId = authorToReturn.Id },
-            authorToReturn);
+            new { authorId = linkedResourceToReturn["Id"] },
+            linkedResourceToReturn);
     }
 
     [HttpOptions]
