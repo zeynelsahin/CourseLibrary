@@ -42,7 +42,8 @@ internal static class StartupHelperExtensions
             CourseLibraryRepository>();
         builder.Services.AddTransient<IPropertyMappingService,
             PropertyMappingService>();
-
+        builder.Services.AddTransient<IPropertyCheckerService,
+            PropertyCheckerService>();
         builder.Services.AddDbContext<CourseLibraryContext>(options => { options.UseSqlite(@"Data Source=library.db"); });
 
         builder.Services.AddAutoMapper(
