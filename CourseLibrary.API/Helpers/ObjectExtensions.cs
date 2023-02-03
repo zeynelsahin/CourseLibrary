@@ -5,7 +5,7 @@ namespace CourseLibrary.API.Helpers;
 
 public static class ObjectExtensions
 {
-    public static ExpandoObject ShepData<TSource>(this TSource source, string? fields)
+    public static ExpandoObject ShapeData<TSource>(this TSource source, string? fields)
     {
         if (source == null)
         {

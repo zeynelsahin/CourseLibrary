@@ -38,6 +38,13 @@ internal static class StartupHelperExtensions
                     };
                 };
             });
+
+        builder.Services.Configure<MvcOptions>(configure =>
+        {
+            var newtonSoftJsonOutputFormatter = configure.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>().FirstOrDefault();
+            newtonSoftJsonOutputFormatter?.SupportedMediaTypes.Add("application/vnd.marvin.hateoas+json");
+        });
+        
         builder.Services.AddScoped<ICourseLibraryRepository,
             CourseLibraryRepository>();
         builder.Services.AddTransient<IPropertyMappingService,
