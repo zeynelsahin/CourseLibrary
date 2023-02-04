@@ -1,5 +1,6 @@
 ﻿using CourseLibrary.API.DbContexts;
 using CourseLibrary.API.Services;
+using Marvin.Cache.Headers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -17,6 +18,11 @@ internal static class StartupHelperExtensions
             {
                 configure.ReturnHttpNotAcceptable = true; //sadece desteklenen formatda dönüş yapar aksi halde 406 Not Acceptable döner
                 //configure.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter()); xml formatter
+
+                configure.CacheProfiles.Add("360SecondCacheProfile", new CacheProfile()
+                {
+                    Duration = 360,
+                });
             })
             .AddNewtonsoftJson(options => { options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver(); })
             .AddXmlDataContractSerializerFormatters() // xml formatter;
@@ -44,7 +50,7 @@ internal static class StartupHelperExtensions
             var newtonSoftJsonOutputFormatter = configure.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>().FirstOrDefault();
             newtonSoftJsonOutputFormatter?.SupportedMediaTypes.Add("application/vnd.marvin.hateoas+json");
         });
-        
+
         builder.Services.AddScoped<ICourseLibraryRepository,
             CourseLibraryRepository>();
         builder.Services.AddTransient<IPropertyMappingService,
@@ -57,6 +63,13 @@ internal static class StartupHelperExtensions
             AppDomain.CurrentDomain.GetAssemblies());
 
         //Problem details Content-Type: application/problem+json
+
+        builder.Services.AddResponseCaching();
+        builder.Services.AddHttpCacheHeaders(options =>
+        {
+            options.MaxAge = 60;
+            options.CacheLocation = CacheLocation.Private;
+        }, options => { options.MustRevalidate = true; });
         return builder.Build();
     }
 
@@ -79,6 +92,8 @@ internal static class StartupHelperExtensions
             });
         }
 
+        // app.UseResponseCaching();
+        app.UseHttpCacheHeaders();
         app.UseAuthorization();
 
         app.MapControllers();

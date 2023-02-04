@@ -46,6 +46,18 @@
           }
         }
       },
+      "Marvin.Cache.Headers/7.0.0-beta": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/Marvin.Cache.Headers.dll": {}
+        },
+        "runtime": {
+          "lib/net6.0/Marvin.Cache.Headers.dll": {}
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
+      },
       "Microsoft.AspNetCore.JsonPatch/7.0.2": {
         "type": "package",
         "dependencies": {
@@ -739,6 +751,22 @@
         "lib/netstandard2.0/Humanizer.dll",
         "lib/netstandard2.0/Humanizer.xml",
         "logo.png"
+      ]
+    },
+    "Marvin.Cache.Headers/7.0.0-beta": {
+      "sha512": "LvDV6v0ZR3j72TiCrd2Ce/HicecmTBN+obcNAmzR1sZU0wnjkn7Bs3Hkc3KmkYyaKFTuoWv9rZAoh3dOWPSlew==",
+      "type": "package",
+      "path": "marvin.cache.headers/7.0.0-beta",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "lib/net5.0/Marvin.Cache.Headers.dll",
+        "lib/net6.0/Marvin.Cache.Headers.dll",
+        "lib/net7.0/Marvin.Cache.Headers.dll",
+        "lib/netcoreapp3.1/Marvin.Cache.Headers.dll",
+        "marvin.cache.headers.7.0.0-beta.nupkg.sha512",
+        "marvin.cache.headers.nuspec"
       ]
     },
     "Microsoft.AspNetCore.JsonPatch/7.0.2": {
@@ -1671,6 +1699,7 @@
   "projectFileDependencyGroups": {
     "net6.0": [
       "AutoMapper.Extensions.Microsoft.DependencyInjection >= 8.1.1",
+      "Marvin.Cache.Headers >= 7.0.0-beta",
       "Microsoft.AspNetCore.JsonPatch >= 7.0.2",
       "Microsoft.AspNetCore.Mvc.NewtonsoftJson >= 6.0.13",
       "Microsoft.EntityFrameworkCore >= 6.0.6",
@@ -1722,6 +1751,10 @@
           "AutoMapper.Extensions.Microsoft.DependencyInjection": {
             "target": "Package",
             "version": "[8.1.1, )"
+          },
+          "Marvin.Cache.Headers": {
+            "target": "Package",
+            "version": "[7.0.0-beta, )"
           },
           "Microsoft.AspNetCore.JsonPatch": {
             "target": "Package",

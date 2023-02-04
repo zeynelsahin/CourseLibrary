@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "dw+/QWBczXUrhuPHnRB7TMHtj+WHAHe/kx4Lqb1R85ce42ZBosmEAxr26oSCTCIw0+HmgidCvb301+NQ5KK9AA==",
+  "dgSpecHash": "T4TEFZNa56/pJ+vkWdTEilVPqVbzKe6IdCHVWLLDdzDv6Y/4JHjwqEnn2IIDp1C08OeDU0+u9tdV0rmIYu2iWw==",
   "success": true,
   "projectFilePath": "C:\\Users\\zeynels\\Desktop\\Git Project\\CourseLibrary\\CourseLibrary.API\\CourseLibrary.API.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\zeynels\\.nuget\\packages\\automapper\\10.1.1\\automapper.10.1.1.nupkg.sha512",
     "C:\\Users\\zeynels\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\8.1.1\\automapper.extensions.microsoft.dependencyinjection.8.1.1.nupkg.sha512",
     "C:\\Users\\zeynels\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
+    "C:\\Users\\zeynels\\.nuget\\packages\\marvin.cache.headers\\7.0.0-beta\\marvin.cache.headers.7.0.0-beta.nupkg.sha512",
     "C:\\Users\\zeynels\\.nuget\\packages\\microsoft.aspnetcore.jsonpatch\\7.0.2\\microsoft.aspnetcore.jsonpatch.7.0.2.nupkg.sha512",
     "C:\\Users\\zeynels\\.nuget\\packages\\microsoft.aspnetcore.mvc.newtonsoftjson\\6.0.13\\microsoft.aspnetcore.mvc.newtonsoftjson.6.0.13.nupkg.sha512",
     "C:\\Users\\zeynels\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
